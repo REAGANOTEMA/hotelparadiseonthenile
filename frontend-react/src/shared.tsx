@@ -124,11 +124,51 @@ export function Footer() {
 }
 
 export function PageNav({onDark = false}: {onDark?: boolean}) {
+ const [open, setOpen] = React.useState(false);
+ const here = (location.pathname.split('/').pop() || 'index.html');
+ const active = (href: string) => href.split('#')[0] === './' + here;
+ const close = () => setOpen(false);
+
+ React.useEffect(() => {
+  if (!open) return;
+  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+  document.addEventListener('keydown', onKey);
+  const prev = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+ }, [open]);
+
  return (
-  <header className={onDark ? 'nav dark' : 'nav'}>
-   <Brand light={onDark}/>
-   <nav>{NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</nav>
-   <a className="btn" href="./rooms.html">Book now</a>
-  </header>
+  <>
+   <header className={onDark ? 'nav dark' : 'nav'}>
+    <Brand light={onDark}/>
+    <nav>{NAV.map(([href, label]) => <a key={href} className={active(href) ? 'active' : ''} href={href}>{label}</a>)}</nav>
+    <div className="navRight">
+     <a className="btn navCta" href="./rooms.html">Book now</a>
+     <button className={'burger' + (open ? ' open' : '')} onClick={() => setOpen(o => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-menu">
+      <span/><span/><span/>
+     </button>
+    </div>
+   </header>
+
+   <div className={'drawer' + (open ? ' open' : '')} id="mobile-menu" aria-hidden={!open}>
+    <div className="drawerScrim" onClick={close}/>
+    <aside className="drawerPanel" role="dialog" aria-modal="true" aria-label="Site menu">
+     <div className="drawerNav">
+      {NAV.map(([href, label]) => <a key={href} className={active(href) ? 'active' : ''} href={href} onClick={close}>{label}</a>)}
+     </div>
+     <div className="drawerFoot">
+      <a className="btn" href="./rooms.html" onClick={close}>Book now</a>
+      <a className="drawerCall" href="tel:+256759504928">Call +256 759 504 928</a>
+      <p className="drawerNote">19 Kiira Rd, Jinja, Uganda</p>
+     </div>
+    </aside>
+   </div>
+
+   <div className="mobileCta">
+    <a className="btn" href="./rooms.html">Book your stay</a>
+    <a className="btn ghost" href="tel:+256759504928">Call us</a>
+   </div>
+  </>
  );
 }
