@@ -115,22 +115,29 @@ CREATE TABLE reservation_rooms (
 );
 
 CREATE TABLE menu_categories (
- id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
- hotel_id BIGINT UNSIGNED NOT NULL,
- outlet ENUM('restaurant','bar','room_service') NOT NULL,
- name VARCHAR(120) NOT NULL
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  hotel_id BIGINT UNSIGNED NOT NULL,
+  outlet ENUM('restaurant','bar','room_service') NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  eyebrow VARCHAR(120) DEFAULT NULL,
+  blurb TEXT DEFAULT NULL,
+  image VARCHAR(190) DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE menu_items (
- id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
- hotel_id BIGINT UNSIGNED NOT NULL,
- category_id BIGINT UNSIGNED NOT NULL,
- name VARCHAR(190) NOT NULL,
- description TEXT,
- price DECIMAL(14,2) NOT NULL,
- active BOOLEAN DEFAULT TRUE,
- stock_tracked BOOLEAN DEFAULT TRUE,
- FOREIGN KEY(category_id) REFERENCES menu_categories(id)
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  hotel_id BIGINT UNSIGNED NOT NULL,
+  category_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(190) NOT NULL,
+  description TEXT,
+  price DECIMAL(14,2) DEFAULT NULL,
+  image VARCHAR(190) DEFAULT NULL,
+  group_name VARCHAR(120) DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  stock_tracked BOOLEAN DEFAULT TRUE,
+  FOREIGN KEY(category_id) REFERENCES menu_categories(id)
 );
 
 CREATE TABLE orders (

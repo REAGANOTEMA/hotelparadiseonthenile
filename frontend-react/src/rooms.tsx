@@ -68,7 +68,8 @@ function RoomsPage() {
   <section className="pageHero">
    <p className="eyebrow">CHOOSE YOUR ROOM</p>
    <h1>Rooms and beds, your way.</h1>
-   <p>Open any room to see the bed clearly, then choose it. You can drop it and pick another one any time before you book. Rates are per night and include breakfast and the local hotel tax.</p>
+    <p>Open any room to see the bed clearly, then choose it. You can drop it and pick another one any time before you book. Rates are per night, shown in Uganda Shillings and US dollars, and include breakfast and the local hotel tax.</p>
+
   </section>
 
   <section className="bedsWrap section">
@@ -84,7 +85,7 @@ function RoomsPage() {
         <p className="bedsLine">{r.beds} &middot; {r.guests}</p>
         <p className="bedText">{r.text}</p>
         <div className="bedFoot">
-         <strong>{r.rate} <span>per night</span></strong>
+         <strong>{r.rate} <span>per night</span><span className="usdLine">US$ {r.usd} per night</span></strong>
          {active
           ? <button className="btn ghost2" onClick={() => setChosen('')}>Change or drop</button>
           : <button className="btn" onClick={() => pick(r.type)}>Choose this bed</button>}
@@ -107,7 +108,8 @@ function RoomsPage() {
       <div className="spot" style={{background: palettes(rooms.indexOf(sel))}}><BedGlyph size={92}/></div>
       <h3>{sel.type}</h3>
       <p className="bedsLine">{sel.beds} &middot; {sel.guests}</p>
-      <div className="spotTotal"><span>{sel.rate} per night</span><b>{nights ? fmt(total) : 'Pick your dates'}</b><small>{nights ? 'For ' + nights + ' night' + (nights > 1 ? 's' : '') + ', breakfast and hotel tax included' : 'Choose check in and check out to see your total'}</small></div>
+       <div className="spotTotal"><span>{sel.rate} per night</span><b>{nights ? fmt(total) : 'Pick your dates'}</b><small>{nights ? 'For ' + nights + ' night' + (nights > 1 ? 's' : '') + ', breakfast and hotel tax included. Also US$ ' + sel.usd + ' per night' : 'Choose check in and check out to see your total, quoted in Uganda Shillings'}</small></div>
+
 
       <div className="planGrid">
        <div className="planField"><label>Your name</label><input value={form.name} onChange={f('name')} placeholder="Full name"/></div>

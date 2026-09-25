@@ -1,16 +1,7 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './styles.css';
-import {rooms, TopBar, PageNav, Footer, BedGlyph, palettes, API, LOGO} from './shared';
-
-const rates = [
- ['Suite', '248,000'],
- ['Family Room', '314,000'],
- ['Triple Room', '213,000'],
- ['Executive Deluxe', '202,000'],
- ['Deluxe Double', '178,000'],
- ['Standard Twin', '142,000']
-];
+import {rooms, TopBar, PageNav, Footer, BedGlyph, palettes, fmt, API, LOGO} from './shared';
 
 const dining = [
  {name: 'Breakfast', price: 'UGX 25,000', note: 'For non residents, or children above six years sharing a room with their parents'},
@@ -91,65 +82,88 @@ function AvailabilityStrip() {
  );
 }
 
-function Home() {
- return <div>
-  <TopBar/>
-  <PageNav/>
-  <Hero/>
-
-  <AvailabilityStrip/>
-
-  <p className="stripNote">Your room has its own page. When you choose below, you will see the bed clearly and you are free to change your mind before booking.</p>
-
-  <section className="section" id="rooms">
-   <div className="center">
-    <p className="eyebrow">STAY IN PARADISE</p>
-    <h2>Rooms and beds</h2>
-    <p className="intro">Seven welcoming room types with honest rates in Uganda Shillings. Open any room to see the bed clearly, choose it, or pick another one before you book. Every rate includes breakfast and the local hotel tax.</p>
-   </div>
-   <div className="grid">
-    {rooms.filter(r => r.featured || r.id === 6).map((r, i) => (
-     <article className="card" key={r.id}>
-      <div className="photo bedPhoto" style={{background: palettes(r.id)}}><BedGlyph size={96}/></div>
-      <div className="cardBody">
-       <p className="pill">{r.pillow}</p>
-       <h3>{r.type}</h3>
-       <p>{r.text}</p>
-       <strong>{r.rate} <span>per night</span></strong>
-       <a className="btn" href={'./rooms.html?room=' + encodeURIComponent(r.type)}>View this bed</a>
-      </div>
-     </article>
-    ))}
-   </div>
-   <div className="center" style={{marginTop: 46}}>
-    <a className="btn ghost2" href="./rooms.html">See all rooms and beds</a>
-   </div>
-  </section>
-
+function Rates() {
+ const [cur, setCur] = React.useState<'UGX' | 'USD'>('UGX');
+ return (
   <section className="section rates" id="rates">
    <div className="center">
     <p className="eyebrow">ROOM RATES AND POLICIES</p>
     <h2>Rates and policies</h2>
-    <p className="intro">Current tariffs for a night at Paradise on the Nile, in Uganda Shillings. All rates include breakfast and the local hotel tax, and the tariff is subject to change without notice.</p>
+    <p className="intro">Current tariffs for a night at Paradise on the Nile. Choose your currency, every rate is quoted in Uganda Shillings and in US dollars, includes breakfast and the local hotel tax, and is subject to change without notice.</p>
+    <div className="curToggle" role="group" aria-label="Choose the currency you want to see">
+     <button type="button" className={cur === 'UGX' ? 'on' : ''} aria-pressed={cur === 'UGX'} onClick={() => setCur('UGX')}>UGX</button>
+     <button type="button" className={cur === 'USD' ? 'on' : ''} aria-pressed={cur === 'USD'} onClick={() => setCur('USD')}>USD</button>
+    </div>
    </div>
    <div className="ratesWrap">
     <div className="rateCard">
-     {rates.map(r => (
-      <div className="rateRow" key={r[0]}><div><h4>{r[0]}</h4><small>Classic comfort, breakfast and taxes included</small></div><b>UGX {r[1]}<span>per night</span></b></div>
-     ))}
-     <div className="rateRow"><div><h4>Standard Single</h4><small>A well equipped single room at the best available rate</small></div><b>On request<span>contact the hotel</span></b></div>
+     {rooms.map(r => {
+      const priced = r.price > 0;
+      return (
+       <div className="rateRow" key={r.type}>
+        <div>
+         <h4>{r.type}</h4>
+         <small>{priced ? 'Classic comfort, breakfast and taxes included' : 'A well equipped single room, contact the hotel for the Uganda Shilling rate'}</small>
+        </div>
+        <b>{cur === 'UGX'
+          ? (priced ? <>{fmt(r.price)}<span>per night</span></> : <>On request<span>contact the hotel</span></>)
+          : <>US$ {r.usd}<span>per night</span></>}</b>
+       </div>
+      );
+     })}
     </div>
     <div className="policy">
      <h4>GOOD TO KNOW</h4>
      <p><b>Check in</b> is from 12 noon and <b>check out</b> is 10 am.</p>
      <p>Rooms held past 6 pm are charged at 75% of the applicable rate, and the full rate applies after 6 pm.</p>
      <p>All rates quoted include the local hotel tax of UGX 2,000 per room per day, and every rate includes breakfast.</p>
+     <p>US dollar rates are quoted for international guests and carry the same breakfast, tax and timing terms as the Uganda Shilling rates.</p>
      <p>Baby cots are free, and children above six years sharing a room with their parents pay for breakfast only at UGX 25,000.</p>
      <p>Lunch is served from 12 noon to 3 pm, and dinner from 7 pm to 11 pm.</p>
      <a className="btn" href="./rooms.html" style={{marginTop: 12}}>Choose your room</a>
     </div>
    </div>
   </section>
+ );
+}
+
+function Home() {
+  return <div>
+   <TopBar/>
+   <PageNav/>
+   <Hero/>
+
+   <AvailabilityStrip/>
+
+   <p className="stripNote">Your room has its own page. When you choose below, you will see the bed clearly and you are free to change your mind before booking.</p>
+
+   <section className="section" id="rooms">
+    <div className="center">
+     <p className="eyebrow">STAY IN PARADISE</p>
+     <h2>Rooms and beds</h2>
+     <p className="intro">Eight welcoming room types with honest rates in Uganda Shillings and US dollars. Open any room to see the bed clearly, choose it, or pick another one before you book. Every rate includes breakfast and the local hotel tax.</p>
+    </div>
+    <div className="grid">
+     {rooms.filter(r => r.featured || r.id === 6).map((r, i) => (
+      <article className="card" key={r.id}>
+       <div className="photo bedPhoto" style={{background: palettes(r.id)}}><BedGlyph size={96}/></div>
+       <div className="cardBody">
+        <p className="pill">{r.pillow}</p>
+        <h3>{r.type}</h3>
+        <p>{r.text}</p>
+        <strong>{r.rate} <span>per night</span><span className="usdLine">US$ {r.usd} per night</span></strong>
+        <a className="btn" href={'./rooms.html?room=' + encodeURIComponent(r.type)}>View this bed</a>
+       </div>
+      </article>
+     ))}
+    </div>
+    <div className="center" style={{marginTop: 46}}>
+     <a className="btn ghost2" href="./rooms.html">See all rooms and beds</a>
+    </div>
+   </section>
+
+   <Rates/>
+
 
   <section className="section" id="dining">
    <div className="center">

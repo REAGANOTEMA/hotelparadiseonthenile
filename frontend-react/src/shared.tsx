@@ -6,10 +6,11 @@ export const LOGO = './logo-256.png';
 export const fmt = (n: number): string => 'UGX ' + Math.round(n).toLocaleString();
 
 export type Room = {
- id: number;
- type: string;
- rate: string;
- price: number;
+  id: number;
+  type: string;
+  rate: string;
+  usd: string;
+  price: number;
  guests: string;
  beds: string;
  pillow: string;
@@ -18,52 +19,14 @@ export type Room = {
 };
 
 export const rooms: Room[] = [
- {id: 1, type: 'Suite', rate: 'UGX 248,000', price: 248000, guests: 'Up to 2 guests', beds: 'One king sized bed', pillow: 'The grand retreat', text: 'Our most spacious room, generous in space and comfort, with premium furnishings, a king sized bed and a calm, elegant atmosphere.', featured: true},
- {id: 2, type: 'Family Room', rate: 'UGX 314,000', price: 314000, guests: 'Up to 4 guests', beds: 'One double bed and two single beds', pillow: 'Made for families', text: 'Roomier than most, with a double bed and two single beds, made for families travelling together with comfort in mind.', featured: true},
- {id: 3, type: 'Triple Room', rate: 'UGX 213,000', price: 213000, guests: 'Up to 3 guests', beds: 'Three single beds', pillow: 'For three guests', text: 'A comfortable setting with three single beds, ideal for friends or a small group staying together.'},
- {id: 4, type: 'Executive Deluxe', rate: 'UGX 202,000', price: 202000, guests: 'Up to 2 guests', beds: 'One king sized bed', pillow: 'Business ready', text: 'An elevated stay with refined touches and a king sized bed, well suited to business and leisure travellers alike.'},
- {id: 5, type: 'Deluxe Double', rate: 'UGX 178,000', price: 178000, guests: 'Up to 2 guests', beds: 'One double bed', pillow: 'The popular choice', text: 'Elegant double accommodation with a restful, warm and private atmosphere and a comfortable double bed.'},
- {id: 6, type: 'Standard Twin', rate: 'UGX 142,000', price: 142000, guests: 'Up to 2 guests', beds: 'Two single beds', pillow: 'Two beds', text: 'A neatly kept room with two comfortable single beds for a peaceful night of rest.'},
- {id: 7, type: 'Standard Single', rate: 'On request', price: 0, guests: '1 guest', beds: 'One single bed', pillow: 'Great value', text: 'A simple, well equipped single room with a comfortable single bed. Contact the hotel for today rate.'}
-];
-
-export type Dish = {
- id: number;
- cat: string;
- outlet: string;
- name: string;
- desc: string;
- rate: string;
- price: number;
-};
-
-const D = (id: number, cat: string, outlet: string, name: string, desc: string, price: number): Dish => ({id, cat, outlet, name, desc, rate: fmt(price), price});
-
-export const menuFallback: Dish[] = [
- D(1, 'Breakfast', 'Restaurant', 'Continental Breakfast', 'Fresh juice, seasonal fruit, breads and preserves with tea or coffee.', 25000),
- D(2, 'Breakfast', 'Restaurant', 'Full English Breakfast', 'Eggs of your choice, sausage, bacon, beans, grilled tomato and toast.', 35000),
- D(3, 'Breakfast', 'Restaurant', 'Fresh Fruit Platter', 'A generous seasonal fruit platter from the garden.', 15000),
- D(4, 'Breakfast', 'Restaurant', 'Omelette du Jour', 'A fluffy three egg omelette with the filling of the day.', 12000),
- D(5, 'Breakfast', 'Restaurant', 'Pancakes with Honey', 'Soft pancakes drizzled with local honey.', 14000),
- D(6, 'Breakfast', 'Restaurant', 'Nile Grill Breakfast', 'A hearty grilled breakfast with Nile specials.', 40000),
- D(7, 'Lunch', 'Restaurant', 'Beef Stew with Rice', 'Slow cooked beef in a rich sauce with steamed rice.', 20000),
- D(8, 'Lunch', 'Restaurant', 'Grilled Chicken', 'Tender grilled chicken with chips and a fresh salad.', 28000),
- D(9, 'Lunch', 'Restaurant', 'Fish and Chips', 'Golden fried fish in a light batter with chips and tartare.', 30000),
- D(10, 'Lunch', 'Restaurant', 'Roast Lamb Chops', 'Herb roasted lamb chops with seasonal vegetables.', 45000),
- D(11, 'Lunch', 'Restaurant', 'Vegetable Curry', 'A mild, fragrant vegetable curry with rice.', 18000),
- D(12, 'Dinner', 'Restaurant', 'Nile Perch Fillet', 'Pan seared Nile perch fillet with lemon butter and sides.', 35000),
- D(13, 'Dinner', 'Restaurant', 'Beef Fillet with Mashed Potatoes', 'Prime beef fillet served with creamy mash and jus.', 40000),
- D(14, 'Dinner', 'Restaurant', 'Chicken Biryani', 'Aromatic spiced rice with tender chicken and raita.', 25000),
- D(15, 'Dinner', 'Restaurant', 'Grilled Nile Tilapia', 'Whole grilled tilapia with greens and a tangy sauce.', 32000),
- D(16, 'Dinner', 'Restaurant', 'Vegetarian Pasta', 'Garden vegetables tossed with pasta and a light tomato sauce.', 22000),
- D(17, 'Snacks, sodas and juices', 'Bar', 'Chapati', 'Soft, hand rolled chapati served warm.', 4000),
- D(18, 'Snacks, sodas and juices', 'Bar', 'Samosas', 'Three crispy samosas with a chutney dip.', 5000),
- D(19, 'Snacks, sodas and juices', 'Bar', 'Fresh Juice', 'A tall glass of freshly squeezed fruit juice.', 8000),
- D(20, 'Snacks, sodas and juices', 'Bar', 'Mineral Water', 'Still or sparkling, chilled.', 3000),
- D(21, 'Snacks, sodas and juices', 'Bar', 'Soft Drinks', 'Chilled sodas from the fridge.', 5000),
- D(22, 'Snacks, sodas and juices', 'Bar', 'Coffee and Tea', 'Freshly brewed by the cup.', 6000),
- D(23, 'Desserts', 'Restaurant', 'Fruit Salad', 'A cool bowl of seasonal fruit.', 12000),
- D(24, 'Desserts', 'Restaurant', 'Cheesecake', 'A smooth slice of cheesecake with berry topping.', 15000)
+  {id: 1, type: 'Suite', rate: 'UGX 248,000', usd: '100 to 120', price: 248000, guests: 'Up to 2 guests', beds: 'One king sized bed', pillow: 'The grand retreat', text: 'Our most spacious room, generous in space and comfort, with premium furnishings, a king sized bed and a calm, elegant atmosphere.', featured: true},
+  {id: 2, type: 'Family Room', rate: 'UGX 314,000', usd: '122 to 125', price: 314000, guests: 'Up to 4 guests', beds: 'One double bed and two single beds', pillow: 'Made for families', text: 'Roomier than most, with a double bed and two single beds, made for families travelling together with comfort in mind.', featured: true},
+  {id: 3, type: 'Triple Room', rate: 'UGX 213,000', usd: '100', price: 213000, guests: 'Up to 3 guests', beds: 'Three single beds', pillow: 'For three guests', text: 'A comfortable setting with three single beds, ideal for friends or a small group staying together.'},
+  {id: 4, type: 'Executive Deluxe', rate: 'UGX 202,000', usd: '80', price: 202000, guests: 'Up to 2 guests', beds: 'One king sized bed', pillow: 'Business ready', text: 'An elevated stay with refined touches and a king sized bed, well suited to business and leisure travellers alike.'},
+  {id: 5, type: 'Deluxe Double', rate: 'UGX 178,000', usd: '70', price: 178000, guests: 'Up to 2 guests', beds: 'One double bed', pillow: 'The popular choice', text: 'Elegant double accommodation with a restful, warm and private atmosphere and a comfortable double bed.'},
+  {id: 6, type: 'Standard Twin', rate: 'UGX 142,000', usd: '60', price: 142000, guests: 'Up to 2 guests', beds: 'Two single beds', pillow: 'Two beds', text: 'A neatly kept room with two comfortable single beds for a peaceful night of rest.'},
+  {id: 7, type: 'Standard Double', rate: 'UGX 178,000', usd: '60', price: 178000, guests: 'Up to 2 guests', beds: 'One double bed', pillow: 'Quiet and cosy', text: 'A well kept double room with a comfortable bed, everything you need for a good night in Jinja.'},
+  {id: 8, type: 'Standard Single', rate: 'On request', usd: '55', price: 0, guests: '1 guest', beds: 'One single bed', pillow: 'Great value', text: 'A simple, well equipped single room with a comfortable single bed. Contact the hotel for today rate.'}
 ];
 
 export const palettes = (i: number): string =>

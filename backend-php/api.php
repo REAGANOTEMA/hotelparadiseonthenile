@@ -47,14 +47,15 @@ if($act==='rooms'){
 }
 
 if($act==='menu'){
- $cats=rows('SELECT id,outlet,name FROM menu_categories ORDER BY id');
- $items=rows('SELECT mi.id,mi.name,mi.description,mi.price,mc.id cid,mc.outlet,mc.name cat FROM menu_items mi JOIN menu_categories mc ON mc.id=mi.category_id WHERE mi.active=1 ORDER BY mc.id,mi.name');
- $by=[];
- foreach($cats as $c){ $by[$c['id']]=['outlet'=>ucfirst($c['outlet']),'name'=>$c['name'],'items'=>[]]; }
- foreach($items as $i){
-  $by[$i['cid']]['items'][]=['id'=>(int)$i['id'],'name'=>$i['name'],'desc'=>$i['description']??'','price'=>(float)$i['price'],'rate'=>'UGX '.number_format((float)$i['price'])];
- }
- $out(['ok'=>true,'categories'=>array_values($by)]);
+  $cats=rows('SELECT id,outlet,name,eyebrow,blurb,image FROM menu_categories ORDER BY sort_order,id');
+  $items=rows('SELECT mi.id,mi.name,mi.description,mi.price,mi.image,mi.group_name,mc.id cid,mc.outlet,mc.name cat FROM menu_items mi JOIN menu_categories mc ON mc.id=mi.category_id WHERE mi.active=1 ORDER BY mc.sort_order,mc.id,mi.sort_order,mi.id');
+  $by=[];
+  foreach($cats as $c){ $by[$c['id']]=['cid'=>(int)$c['id'],'outlet'=>ucfirst($c['outlet']),'name'=>$c['name'],'eyebrow'=>$c['eyebrow']??'','blurb'=>$c['blurb']??'','image'=>$c['image']??'','items'=>[]]; }
+  foreach($items as $i){
+   $price=$i['price']===null?null:(float)$i['price'];
+   $by[$i['cid']]['items'][]=['id'=>(int)$i['id'],'name'=>$i['name'],'desc'=>$i['description']??'','group'=>$i['group_name']??'','image'=>$i['image']??'','price'=>$price,'rate'=>$price===null?'Price on request':'UGX '.number_format($price)];
+  }
+  $out(['ok'=>true,'categories'=>array_values($by)]);
 }
 
 if($act==='order'){
@@ -68,6 +69,7 @@ if($act==='order'){
   if($qty<1){ continue; }
   $mi=row('SELECT id,price FROM menu_items WHERE id=? AND active=1',[(int)($ln['id']??0)]);
   if(!$mi){ $out(['ok'=>false,'error'=>'One of the dishes is no longer available. Please refresh the menu.'],422); }
+  if($mi['price']===null){ $out(['ok'=>false,'error'=>'That dish is priced on request. Please call +256 759 504 928 and the team will price it for you.'],422); }
   $rows[]=['id'=>(int)$mi['id'],'qty'=>$qty,'price'=>(float)$mi['price']];
  }
  if(count($rows)===0){ $out(['ok'=>false,'error'=>'Your order is empty. Add at least one dish first.'],422); }
