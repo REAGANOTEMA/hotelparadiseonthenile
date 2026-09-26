@@ -34,7 +34,7 @@ button{font-family:inherit;cursor:pointer}
 .sideClose span{position:absolute;left:10px;right:10px;top:19px;height:2px;background:#fff;border-radius:2px}
 .sideClose span:first-child{transform:rotate(45deg)}
 .sideClose span:last-child{transform:rotate(-45deg)}
-.sideScrim{position:fixed;inset:0;background:rgba(5,13,26,.6);z-index:19;opacity:0;transition:opacity .25s ease}
+.sideScrim{display:none;position:fixed;inset:0;background:rgba(5,13,26,.6);z-index:19;opacity:0;transition:opacity .25s ease}
 .sideScrim[hidden]{display:none}
 
 .main{margin-left:var(--side);flex:1;min-width:0;display:flex;flex-direction:column}
@@ -102,7 +102,6 @@ table.tbl{width:100%;border-collapse:collapse}
 .formRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
 
 .twoCol{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:start}
-@media(max-width:1100px){.twoCol{grid-template-columns:1fr}}
 
 ul.clean{list-style:none;margin:0;padding:0}
 .miniList .li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid #eeeae0;font-size:13.5px}
@@ -126,7 +125,6 @@ ul.clean{list-style:none;margin:0;padding:0}
 .room.maintenance{border-top:3px solid #94a3b8}
 
 .posWrap{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
-@media(max-width:1100px){.posWrap{grid-template-columns:1fr}}
 .menuCats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .menuCats button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:12.5px}
 .menuCats button.on{background:var(--gold);color:#10213a;font-weight:700;border-color:var(--gold)}
@@ -144,29 +142,106 @@ ul.clean{list-style:none;margin:0;padding:0}
 .totals .tt{display:flex;justify-content:space-between;font-weight:700;font-size:16px}
 
 .dashGrid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:start}
-@media(max-width:1100px){.dashGrid{grid-template-columns:1fr}}
 
 .reports{margin-bottom:22px}
 .print-hide{}
-
-@media print{
- .side,.top,.toolbar .btn{display:none}
- .main{margin:0}
- .content{padding:0}
- body{background:#fff}
- .panel{border:0;box-shadow:none}
-}
 
 .res-detail{margin-bottom:20px}
 .res-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .payRow2{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid #eeeae0}
 
 .loginWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#050d1c,#071A33 60%,#0f2850);padding:20px}
-.loginCard{width:390px;background:#fff;border-radius:18px;padding:38px 34px;box-shadow:0 30px 80px #00000055}
+.loginCard{width:100%;max-width:390px;background:#fff;border-radius:18px;padding:38px 34px;box-shadow:0 30px 80px #00000055}
 .loginCard .sideBrand{color:var(--navy);padding:0;margin-bottom:22px;justify-content:center}
 .loginCard .sideBrand .sideLogo{width:64px;height:64px}
-.loginCard .sideBrand .sbText span{color:var(--navy);font-size:22px}
+.loginCard .sideBrand .sbText span{color:var(--navy);font-size:19px;letter-spacing:1.6px}
 .loginCard .sideBrand .sbText small{color:var(--gold)}
 .loginCard p{color:var(--muted);font-size:13.5px;line-height:1.6}
-.demo{border-top:1px solid var(--line);margin-top:22px;padding-top:16px;font-size:12px;color:var(--muted)}
+.demo{border-top:1px solid var(--line);margin-top:22px;padding-top:16px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
 .demo b{color:var(--navy)}
+
+/* ===================================================================
+   Responsive
+
+     1080  the sidebar becomes a drawer, opened from the header
+      900  the two column layouts stack
+      720  tighter padding, the header wraps
+      560  phones, and the form fields stop zooming the page on iOS
+   =================================================================== */
+@media(max-width:1080px){
+  .main{margin-left:0}
+  .side{
+    transform:translateX(-102%);
+    transition:transform .3s cubic-bezier(.3,0,.2,1);
+    box-shadow:0 0 60px #00000060;
+    width:min(84vw,300px);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .side.open{transform:none}
+  .sideClose{display:block}
+  .sideScrim{display:block;opacity:1}
+  .sideToggle{display:block}
+  body.navOpen{overflow:hidden}
+  .twoCol,.posWrap,.dashGrid{grid-template-columns:1fr}
+}
+
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{padding:15px 16px}
+  .kpiVal{font-size:22px}
+  .formGrid,.formRow{grid-template-columns:1fr}
+  .itemGrid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+  .roomGrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+}
+
+@media(max-width:720px){
+  .top{padding:12px 16px;gap:12px}
+  .pageTitle{font-size:19px}
+  .pageSub{font-size:12px}
+  .content{padding:18px 16px 44px}
+  .panel{padding:17px 15px;border-radius:14px;margin-bottom:16px}
+  .panel h2{font-size:17px}
+  .toolbar{gap:8px}
+  .toolbar .btn,.toolbar .btnGhost{flex:1 1 auto;justify-content:center}
+  .res-meta{grid-template-columns:1fr 1fr}
+  .loginWrap{padding:16px}
+  .loginCard{padding:28px 22px;border-radius:16px}
+}
+
+@media(max-width:560px){
+  /* Anything under 16px makes iOS zoom the page the moment a field is tapped. */
+  .field input,.field select,.field textarea{font-size:16px;padding:12px}
+  .topRight{gap:8px}
+  .whoRole{display:none}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpiLbl{font-size:10px;letter-spacing:1.4px}
+  .kpiVal{font-size:19px;margin:6px 0 2px}
+  .kpiHint{font-size:11px}
+  .res-meta{grid-template-columns:1fr}
+  .itemGrid{grid-template-columns:1fr 1fr}
+  .roomGrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+  .rfilter,.menuCats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .rfilter::-webkit-scrollbar,.menuCats::-webkit-scrollbar{display:none}
+  .rfilter button,.menuCats button{flex:none;padding:10px 15px;min-height:40px}
+  .bar{gap:8px}
+  .bar .btn,.bar .btnGhost{flex:1 1 auto;justify-content:center}
+  .tbl th,.tbl td{padding:10px 9px}
+  .panel h3{font-size:14px}
+  .loginCard .sideBrand .sbText span{font-size:17px}
+}
+
+@media(pointer:coarse){
+  .btn,.btnGhost{min-height:44px;justify-content:center}
+  .rfilter button,.menuCats button{min-height:42px;padding:10px 16px}
+  .sideNav a{min-height:46px}
+  .tableScroll{-webkit-overflow-scrolling:touch}
+}
+
+@media print{
+  .side,.top,.sideScrim,.skipLink,.toolbar .btn{display:none!important}
+  .main{margin:0}
+  .content{padding:0}
+  body{background:#fff}
+  .panel{border:0;box-shadow:none}
+  .tableScroll{overflow:visible}
+}

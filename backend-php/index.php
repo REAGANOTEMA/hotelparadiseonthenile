@@ -19,21 +19,22 @@ function pagelogin(): void{
   }
   flash('Incorrect email or password. Please try again.','bad');
  }
- echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in | Hotel Paradise on the Nile</title>';
- echo '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">';
- echo '<link rel="stylesheet" href="'.BASE.'/assets/admin.css">';
- echo '<link rel="icon" type="image/png" sizes="64x64" href="'.SITE_URL.'/images/logo-64.png">';
- echo '<link rel="apple-touch-icon" href="'.SITE_URL.'/images/logo-192.png"></head><body>';
- echo '<div class="loginWrap"><div class="loginCard">';
- echo '<div class="sideBrand"><img class="sideLogo" src="'.SITE_URL.'/images/logo-256.png" alt="Hotel Paradise on the Nile logo"><span class="sbText"><span>PARADISE</span><small>ON THE NILE</small></span></div>';
- if($f=flash_out()){ echo '<div class="flash '.e($f['type']).'">'.e($f['msg']).'</div>'; }
- echo '<h1 style="font-size:26px;color:var(--navy);margin-bottom:4px">Welcome back</h1><p>Sign in to the Hotel Paradise management system.</p>';
- echo '<form method="post">';
- echo '<div class="field"><label>Email address</label><input name="email" type="email" required autofocus></div>';
- echo '<div class="field"><label>Password</label><input name="password" type="password" required></div>';
- echo '<button class="btn" style="width:100%;justify-content:center">Sign in</button></form>';
- echo '<div class="demo">Demo accounts, password <b>Paradise2026</b> except the administrator which uses <b>Admin@123</b>.<br>Administrator: <b>admin@hotelparadiseonthenile.info</b><br>Front desk: <b>frontdesk@hotelparadiseonthenile.info</b></div>';
- echo '</div></div></body></html>';
+  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Sign in | Hotel Paradise on the Nile</title>';
+  echo '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">';
+  echo '<link rel="stylesheet" href="'.BASE.'/assets/admin.css">';
+  echo '<link rel="icon" type="image/png" sizes="64x64" href="'.SITE_URL.'/images/logo-64.png">';
+  echo '<link rel="apple-touch-icon" href="'.SITE_URL.'/images/logo-192.png"></head><body>';
+  echo '<div class="loginWrap"><div class="loginCard">';
+  echo '<div class="sideBrand"><img class="sideLogo" src="'.SITE_URL.'/images/logo-256.png" alt="Hotel Paradise on the Nile logo"><span class="sbText"><span>HOTEL PARADISE</span><small>ON THE NILE</small></span></div>';
+  if($f=flash_out()){ echo '<div class="flash '.e($f['type']).'">'.e($f['msg']).'</div>'; }
+  echo '<h1 style="font-size:26px;color:var(--navy);margin-bottom:4px">Welcome back</h1><p>Sign in to the Hotel Paradise on the Nile management system.</p>';
+  echo '<form method="post">';
+  echo '<div class="field"><label>Email address</label><input name="email" type="email" required autocomplete="username" autofocus></div>';
+  echo '<div class="field"><label>Password</label><input name="password" type="password" required autocomplete="current-password"></div>';
+  echo '<button class="btn" style="width:100%;justify-content:center">Sign in</button></form>';
+  echo '<div class="demo">Demo accounts, password <b>Paradise2026</b> except the administrator which uses <b>Admin@123</b>.<br>Administrator: <b>admin@hotelparadiseonthenile.info</b><br>Front desk: <b>frontdesk@hotelparadiseonthenile.info</b></div>';
+  echo '<div class="demo" style="border:0;margin-top:14px;padding-top:0">Management system by <a href="https://reagansoftinnovation.com" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">Reagansoft Innovation Limited</a></div>';
+  echo '</div></div></body></html>';
 }
 
 $page=$_GET['page']??'dashboard';
