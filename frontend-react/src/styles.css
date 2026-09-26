@@ -2,8 +2,10 @@
 :root{--gold:#C9A227;--navy:#071A33;--nile:#0B5D78;--nebula:#1E3A5F;--ivory:#F8F5EC;--white:#fff;--ink:#172033}
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* Stops iOS inflating text in landscape, which would otherwise break every grid. */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;color:var(--ink);font-family:'DM Sans',sans-serif;background:var(--ivory);line-height:1.6}
+img,svg,video,iframe{max-width:100%}
 button{font:inherit;cursor:pointer;border:0}
 a{color:inherit;text-decoration:none}
 
@@ -28,7 +30,7 @@ a{color:inherit;text-decoration:none}
 .brand span{font-size:25px}
 .brand small{font-family:'DM Sans';letter-spacing:4px;color:var(--gold);font-size:9px}
 .nav nav{display:flex;gap:28px}
-.nav a{font-size:13px;color:#33414f}
+.nav a{font-size:13px;color:#33414f;white-space:nowrap}
 .nav a:hover{color:var(--gold)}
 .btn{display:inline-block;background:var(--gold);color:#071A33;padding:14px 22px;font-weight:700;letter-spacing:1px;font-size:13px;text-align:center}
 .btn.ghost{background:transparent;border:1px solid #fff;color:#fff}
@@ -69,22 +71,36 @@ a{color:inherit;text-decoration:none}
 .mobileCta{display:none}
 
 .hero{position:relative;min-height:680px;background:var(--navy);display:flex;align-items:center;overflow:hidden}
+.hero:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}
 .heroShots{position:absolute;inset:0;z-index:0}
-/* The drift is deliberately small. A large scale on a full width photograph
-   is what makes a good photo look soft, so this stays just perceptible. */
-.heroSlide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;opacity:0;transform:scale(1.015);filter:saturate(.95);transition:opacity 1.6s ease,transform 9s cubic-bezier(.3,0,.2,1);will-change:opacity,transform;-webkit-user-drag:none}
-.heroSlide.active{opacity:1;transform:scale(1.06)}
-.heroShade{position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(7,26,51,.93) 0%,rgba(7,26,51,.64) 36%,rgba(7,26,51,.16) 68%,rgba(7,26,51,.4) 100%)}
-.heroOverlay{position:relative;z-index:2;max-width:760px;padding:90px 8vw;color:#fff}
-.heroDots{position:absolute;z-index:3;left:50%;bottom:24px;transform:translateX(-50%);display:flex;gap:10px;align-items:center}
-.heroDots .dot{width:30px;height:4px;border:0;border-radius:99px;background:rgba(255,255,255,.38);padding:0;transition:background .4s ease,width .4s ease}
-.heroDots .dot:hover{background:rgba(255,255,255,.75)}
-.heroDots .dot.on{background:var(--gold);width:44px}
+/* The drift is deliberately small. These photographs are already being scaled
+   up from small files, and a large scale on top of that is what makes a good
+   photo look soft, so this stays barely perceptible. */
+.heroSlide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;opacity:0;visibility:hidden;transform:scale(1.012);filter:saturate(.96);transition:opacity 1.5s ease,transform 11s cubic-bezier(.3,0,.2,1),visibility 0s linear 1.5s;will-change:opacity,transform;-webkit-user-drag:none}
+.heroSlide.active{opacity:1;visibility:visible;transform:scale(1.04);transition:opacity 1.5s ease,transform 11s cubic-bezier(.3,0,.2,1),visibility 0s}
+/* Heaviest behind the writing on the left, lifting to the right so the
+   photograph is still read, and a soft vignette to hold the eye in the frame. */
+.heroShade{position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(7,26,51,.94) 0%,rgba(7,26,51,.7) 34%,rgba(7,26,51,.18) 66%,rgba(7,26,51,.42) 100%),radial-gradient(120% 90% at 50% 45%,rgba(0,0,0,0) 40%,rgba(5,13,26,.55) 100%)}
+.heroCopy{position:relative;z-index:2;width:100%;display:grid;padding:clamp(64px,7vw,104px) 8vw clamp(104px,9vw,140px);color:#fff}
+/* All seven panels share one grid cell, so the block is as tall as the longest
+   of them and the words can change length without moving anything. */
+.heroPanel{grid-area:1/1;align-self:center;max-width:790px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .5s ease,visibility 0s linear .5s}
+.heroPanel.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .55s ease,visibility 0s}
+.heroDots{position:absolute;z-index:3;left:50%;bottom:24px;transform:translateX(-50%);display:flex;gap:2px;align-items:center}
+/* The bar is drawn by ::before so the tap target can be a comfortable
+   34 by 26 pixels instead of a 4 pixel sliver. */
+.heroDots .dot{position:relative;width:34px;height:26px;background:none;border:0;padding:0;transition:width .4s ease}
+.heroDots .dot::before{content:'';position:absolute;left:2px;right:2px;top:11px;height:4px;border-radius:99px;background:rgba(255,255,255,.38);transition:background .4s ease}
+.heroDots .dot:hover::before{background:rgba(255,255,255,.75)}
+.heroDots .dot.on{width:48px}
+.heroDots .dot.on::before{background:var(--gold)}
 .eyebrow{letter-spacing:4px;font-size:11px;color:var(--gold);font-weight:700;margin:0}
 h1,h2{font-family:'Playfair Display',serif;font-weight:600}
-.hero h1{font-size:clamp(48px,7vw,86px);line-height:.98;margin:15px 0}
-.hero p{font-size:20px;max-width:620px;color:#eef4f8;margin:0 0 14px}
+.hero h1{font-size:clamp(40px,5.4vw,78px);line-height:1.02;margin:14px 0;color:#fff;text-wrap:balance}
+.heroText{font-size:19px;max-width:600px;color:#eef4f8;margin:0;line-height:1.65;text-wrap:pretty}
 .heroBtns{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+/* Over a photograph the outlined button needs light lettering, not navy. */
+.heroBtns .btn.ghost2{color:#fff}
 
 .booking{margin:-45px auto 0;position:relative;background:#fff;max-width:1100px;padding:22px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;box-shadow:0 15px 45px #071A3325}
 .booking label{display:block;font-size:10px;letter-spacing:2px;color:#667085;margin-bottom:7px}
@@ -156,17 +172,28 @@ h1,h2{font-family:'Playfair Display',serif;font-weight:600}
 .contactNote p{margin:0 0 18px}
 .contactNote .btn{align-self:flex-start}
 
-footer{background:#050a12;color:#dbe4ee}
+footer{background:#050a12;color:#dbe4ee;overflow-wrap:anywhere}
 .flag{height:8px;display:grid;grid-template-columns:1fr 1fr 1fr}
 .flag i:nth-child(1){background:#000}
 .flag i:nth-child(2){background:#FCDC04}
 .flag i:nth-child(3){background:#D90000}
-.footerMain{padding:60px 7vw;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+.footerMain{padding:60px 7vw;display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.25fr;gap:40px}
 .footerMain h4{color:var(--gold);font-size:11px;letter-spacing:2px;margin:0 0 12px}
 .footerMain p{color:#9aa8b8;line-height:1.7;font-size:13px;margin:6px 0}
-.projLink{display:inline-block;margin-top:10px;color:var(--gold);font-size:12px;letter-spacing:1px}
-.projLink:hover{color:#fff}
-.footerCredit{padding:22px 7vw;border-top:1px solid #ffffff12;color:#73808f;font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.footLink{color:#9aa8b8;transition:color .18s ease}
+.footLink:hover{color:var(--gold)}
+/* the studio that built the site and the system behind it */
+.footerStudio .studioLink{display:inline-flex;flex-direction:column;gap:4px;padding:13px 17px;border:1px solid #ffffff1f;background:#ffffff08;max-width:100%;transition:border-color .2s ease,background .2s ease,transform .2s ease}
+.footerStudio .studioLink:hover{border-color:var(--gold);background:#C9A2271a;transform:translateY(-2px)}
+.studioName{color:#fff;font-weight:700;font-size:13.5px;line-height:1.35}
+.footerStudio .studioLink:hover .studioName{color:var(--gold)}
+.studioUrl{color:var(--gold);font-size:12px;letter-spacing:.4px}
+.studioWa{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:10px 15px;border:1px solid #25D36666;border-radius:999px;color:#cfe9d8;font-size:12.5px;font-weight:600;letter-spacing:.4px;transition:background .2s ease,border-color .2s ease,color .2s ease}
+.studioWa svg{flex:none;color:#25D366}
+.studioWa:hover{background:#25D3661f;border-color:#25D366;color:#fff}
+.projLink{display:inline-block;color:var(--gold);font-size:12px;letter-spacing:.4px;border-bottom:1px solid #C9A22755;transition:color .18s ease,border-color .18s ease}
+.projLink:hover{color:#fff;border-color:#fff}
+.footerCredit{padding:22px 7vw;border-top:1px solid #ffffff12;color:#73808f;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 
 /* agreement page */
 .docpage{background:#0a1626;min-height:100vh;padding:0 0 80px}
@@ -238,7 +265,7 @@ tr:last-child td{border-bottom:0}
 .brandLogo{width:54px;height:54px;border-radius:50%;object-fit:cover;flex:none;background:var(--ivory);border:3px solid var(--gold);box-shadow:0 2px 10px #071A3326;padding:2px}
 .brandL.light .brandLogo{border-color:rgba(201,162,39,.85);box-shadow:0 2px 14px #00000045}
 .brandWord{display:flex;flex-direction:column;line-height:1.1;color:var(--navy);font-family:'Playfair Display',serif;letter-spacing:3px}
-.brandWord span{font-size:23px}
+.brandWord span{font-size:21px}
 .brandWord small{font-family:'DM Sans';letter-spacing:4px;color:var(--gold);font-size:9px}
 .brandL.light .brandWord{color:#fff}
 .heroLogo{margin-bottom:22px}
@@ -396,22 +423,102 @@ tr:last-child td{border-bottom:0}
 .mapBox a{color:var(--nile);text-decoration:underline}
 .mapBox a:hover{color:var(--gold)}
 
-@media(max-width:1050px){.bedsWrap{grid-template-columns:1fr}.planner{position:static;margin-top:6px}.bedCard{grid-template-columns:1fr}.bedMedia{--r:16/9}}
-@media(max-width:900px){.trayItem{grid-template-columns:1fr auto;grid-template-areas:"info total" "qty drop";row-gap:12px;column-gap:8px}.trayInfo{grid-area:info}.trayQty{grid-area:qty}.lineTotal{grid-area:total;justify-self:end}.dropBtn{grid-area:drop;justify-self:end}}
-@media(max-width:900px){.docsheet{padding:0}.dochead{padding:44px 24px}.docSection{padding:34px 24px 0}.docFoot{padding:28px 24px}.parties{grid-template-columns:1fr}.partySeal{margin:0;padding:12px 0}.scopeGrid,.sigGrid{grid-template-columns:1fr}.partyCard{padding:26px 24px}}
-@media(max-width:900px){body{padding-bottom:74px}.nav{height:64px;padding:0 4vw}.nav nav,.nav .navCta{display:none}.burger{display:block}.drawer{top:64px}.mobileCta{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;gap:10px;padding:10px 4vw calc(10px + env(safe-area-inset-bottom));background:rgba(7,26,51,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid rgba(201,162,39,.35);box-shadow:0 -10px 30px #071A3340}.mobileCta .btn{flex:1;text-align:center;padding:14px 10px}.booking{margin:0 15px;grid-template-columns:1fr}.booking .btn{width:100%}.grid,.factsGrid,.footerMain,.contactWrap,.ratesWrap{grid-template-columns:1fr}.hero{min-height:620px}.section{padding:70px 6vw}.section h2{font-size:42px}.topbar .right{display:none}.topbar{justify-content:center;text-align:center}.pageHero{padding:76px 6vw 56px}}
-@media(max-width:560px){.topbar{display:none}.hero{min-height:540px}.heroOverlay{padding:66px 6vw 78px}.hero p{font-size:17px}.heroBtns{flex-direction:column;gap:10px;margin-top:26px}.heroBtns .btn{width:100%}.section{padding:56px 5.5vw}.section h2{font-size:33px;line-height:1.15}.intro{margin-bottom:30px}.booking{margin:0 12px;padding:18px 16px}.booking input,.booking select,.planField input,.planField select{font-size:16px}.rateRow{flex-direction:column;align-items:flex-start;gap:8px;padding:18px 20px}.rateRow b{text-align:left}.policy{padding:26px 22px}.menuRow{flex-direction:column;align-items:flex-start;gap:8px;padding:18px 20px}.cardBody{padding:22px 20px}.contactRow{flex-direction:column;gap:6px;padding:13px 0}.contactRow span{text-align:left}.mapBox iframe{min-height:260px}.footerMain{padding:46px 6vw}.footerCredit{flex-direction:column;align-items:center;text-align:center}.brandLogo{width:46px;height:46px}.brandWord span{font-size:20px}.stripNote{font-size:13px;margin:14px 12px 0;padding:12px 14px}.bedBody{padding:22px 20px}.bedMedia{--r:3/2}.planner{padding:22px 18px}.linkBtn{font-size:12px}.trayQty button{width:30px;height:30px}.dochead{padding:34px 18px}.docSection{padding:30px 18px 0}.docFoot{padding:24px 18px}.docOverline{letter-spacing:3px}}
-@media(prefers-reduced-motion:no-preference){.card,.fact,.menuRow,.rateCard{transition:transform .25s ease,box-shadow .25s ease}.btn:hover{transform:translateY(-2px);background:#d8aa2e}.card:hover,.fact:hover,.menuRow:hover,.rateCard:hover{transform:translateY(-5px);box-shadow:0 20px 50px #071A3320}}
-@media(prefers-reduced-motion:reduce){.heroSlide{transition-duration:.01s;transform:none}.heroSlide.active{transform:none}.dishCard:hover{transform:none}}
+/* ===================================================================
+   Responsive
+   The order below is deliberate. Each block is a ceiling, so the later
+   blocks are always the ones that win, and a device only ever picks up
+   the rules that actually apply to it.
 
-/* menu on small screens */
-@media(max-width:1050px){
-  .dishGrid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-  .menuJump{top:64px}
-  .menuJumpInner{padding:0 5vw}
-  .secBlock{scroll-margin-top:124px}
-  .orderPanel{scroll-margin-top:124px}
+     1200  small laptops and large tablets in landscape
+     1050  tablet portrait, the two column to one column step
+     1000  the header folds into the drawer, the booking bar appears
+      900  the remaining multi column layouts give way
+      760  the order tray reflows, the agreement page reflows
+      640  the menu becomes a list of thumbnails
+      560  phones
+      420  small phones
+   plus two rules that are not about width at all: short landscape
+   screens, and pointers that are actually fingers.
+   =================================================================== */
+
+/* --- 1200: keep the header comfortable before it gets tight --------- */
+@media(max-width:1200px){
+  .nav{padding:0 3.5vw}
+  .nav nav{gap:19px}
+  .nav a{font-size:12.5px}
+  .nav .btn{padding:12px 17px;font-size:12.5px}
+  .footerMain{grid-template-columns:1.6fr 1fr 1fr 1fr;gap:34px}
+  .footerStudio{grid-column:1/-1;border-top:1px solid #ffffff12;padding-top:26px;display:grid;grid-template-columns:minmax(240px,.9fr) 1.1fr;gap:10px 34px;align-items:center}
+  .footerStudio h4{grid-column:1/-1;margin-bottom:0}
+  .footerStudio .studioLink{max-width:340px}
+  .footerStudio p{margin:0}
+  .topbar{font-size:10.5px;letter-spacing:1.4px}
 }
+
+/* --- 1050: tablet portrait ------------------------------------------ */
+@media(max-width:1050px){
+  .bedsWrap{grid-template-columns:1fr}
+  .planner{position:static;margin-top:6px}
+  .bedCard{grid-template-columns:1fr}
+  .bedMedia{--r:16/9}
+  .dishGrid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+  .menuJumpInner{padding:0 5vw}
+  .booking{grid-template-columns:1fr 1fr;gap:16px}
+  .booking .btn{width:100%}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .factsGrid{grid-template-columns:repeat(2,1fr)}
+  .pageHero{padding:76px 6vw 58px}
+}
+
+/* --- 1000: the drawer takes over from the horizontal navigation ----- */
+@media(max-width:1000px){
+  body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+  .nav{height:64px;padding:0 4vw}
+  .nav nav,.nav .navCta{display:none}
+  .burger{display:block}
+  .drawer{top:64px}
+  .menuJump{top:64px}
+  .secBlock{scroll-margin-top:126px}
+  .orderPanel{scroll-margin-top:126px}
+  .mobileCta{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;gap:10px;padding:10px 4vw calc(10px + env(safe-area-inset-bottom));background:rgba(7,26,51,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid rgba(201,162,39,.35);box-shadow:0 -10px 30px #071A3340}
+  .mobileCta .btn{flex:1;text-align:center;padding:14px 10px}
+  /* the fixed bar sits over the bottom of the hero, so the text and the
+     slide dots are lifted clear of it */
+  .heroCopy{padding:76px 6vw 118px}
+  .heroText{font-size:17.5px;max-width:520px}
+  .heroDots{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .hero{min-height:620px}
+  .section{padding:70px 6vw}
+  .section h2{font-size:42px}
+  .booking{margin:0 15px}
+  .topbar{justify-content:center;text-align:center}
+  .topbar .right{display:none}
+  .footerMain{grid-template-columns:1fr 1fr;gap:34px}
+  .footerStudio{grid-column:1/-1;grid-template-columns:1fr;gap:8px}
+  .footerStudio .studioLink{max-width:none}
+  .ratesWrap,.contactWrap{grid-template-columns:1fr}
+}
+
+/* --- 900: the order tray and the agreement page reflow -------------- */
+@media(max-width:900px){
+  .trayItem{grid-template-columns:1fr auto;grid-template-areas:"info total" "qty drop";row-gap:12px;column-gap:8px}
+  .trayInfo{grid-area:info}
+  .trayQty{grid-area:qty}
+  .lineTotal{grid-area:total;justify-self:end}
+  .dropBtn{grid-area:drop;justify-self:end}
+  .docsheet{padding:0}
+  .dochead{padding:44px 24px}
+  .docSection{padding:34px 24px 0}
+  .docFoot{padding:28px 24px}
+  .parties{grid-template-columns:1fr}
+  .partySeal{margin:0;padding:12px 0}
+  .scopeGrid,.sigGrid{grid-template-columns:1fr}
+  .partyCard{padding:26px 24px}
+  .booking{grid-template-columns:1fr}
+  .cardBody{padding:24px 22px}
+}
+
+/* --- 640: the menu becomes a list of thumbnails --------------------- */
 @media(max-width:640px){
   .menuWrap{padding-top:20px}
   .dishGrid{grid-template-columns:1fr}
@@ -428,6 +535,156 @@ tr:last-child td{border-bottom:0}
   .orderPanelTitle b{font-size:20px}
   .orderPanelBody{padding:0 18px 20px}
   .printBtn{width:100%}
+  .booking{grid-template-columns:1fr}
+  .grid,.factsGrid{grid-template-columns:1fr}
+  .planGrid{grid-template-columns:1fr}
+  .footerMain{grid-template-columns:1fr;gap:30px}
+  .footerStudio{padding-top:22px}
+}
+
+/* --- 560: phones --------------------------------------------------- */
+@media(max-width:560px){
+  .topbar{display:none}
+  .hero{min-height:600px}
+  .heroCopy{padding:56px 5.5vw 112px}
+  .heroLogo{margin-bottom:14px}
+  .heroLogo img{width:64px;height:64px}
+  .hero h1{font-size:clamp(34px,9.6vw,46px)}
+  .heroText{font-size:16.5px}
+  .heroBtns{flex-direction:column;gap:10px;margin-top:26px}
+  .heroBtns .btn{width:100%}
+  .section{padding:56px 5.5vw}
+  .section h2{font-size:33px;line-height:1.15}
+  .intro{margin-bottom:30px}
+  .booking{margin:0 12px;padding:18px 16px}
+  .booking input,.booking select,.planField input,.planField select{font-size:16px}
+  .rateRow{flex-direction:column;align-items:flex-start;gap:8px;padding:18px 20px}
+  .rateRow b{text-align:left}
+  .policy{padding:26px 22px}
+  .menuRow{flex-direction:column;align-items:flex-start;gap:8px;padding:18px 20px}
+  .contactRow{flex-direction:column;gap:6px;padding:13px 0}
+  .contactRow span{text-align:left}
+  .mapBox iframe{min-height:260px}
+  .footerMain{padding:46px 6vw}
+  .footerCredit{flex-direction:column;align-items:center;text-align:center;gap:10px}
+  .brandLogo{width:46px;height:46px}
+  .brandWord span{font-size:18px;letter-spacing:2.2px}
+  .brandWord small{font-size:8px;letter-spacing:3px}
+  .stripNote{font-size:13px;margin:14px 12px 0;padding:12px 14px}
+  .bedBody{padding:22px 20px}
+  .bedMedia{--r:3/2}
+  .planner{padding:22px 18px}
+  .linkBtn{font-size:12px}
+  .trayQty button{width:32px;height:32px}
+  .dochead{padding:34px 18px}
+  .docSection{padding:30px 18px 0}
+  .docFoot{padding:24px 18px}
+  .docOverline{letter-spacing:3px}
+  .invTotal{padding:24px 22px}
+  .invTotal b{font-size:27px}
+  .invTotal p{text-align:left;max-width:none}
+  .sigCard{padding:20px 18px}
+  .sigLine{flex-wrap:wrap;gap:8px 14px}
+  .sigLine span{width:100%}
+}
+
+/* --- 420: the smallest phones still in use -------------------------- */
+@media(max-width:420px){
+  .nav{padding:0 3.5vw}
+  .brandL{gap:10px}
+  .brandLogo{width:40px;height:40px}
+  .brandWord span{font-size:15px;letter-spacing:1.4px}
+  .brandWord small{font-size:7.5px;letter-spacing:2.4px}
+  .section{padding:48px 5vw}
+  .section h2{font-size:29px}
+  .hero{min-height:560px}
+  .heroCopy{padding:44px 5vw 104px}
+  .hero h1{font-size:31px}
+  .heroText{font-size:15.5px}
+  .mobileCta{padding:9px 3vw calc(9px + env(safe-area-inset-bottom))}
+  .mobileCta .btn{padding:13px 6px;font-size:12px;letter-spacing:.6px}
+  .heroDots{bottom:calc(76px + env(safe-area-inset-bottom))}
+  .dishCard .shot{width:108px}
+  .shotFile{max-width:92px}
+  .cardBody{padding:20px 17px}
+  .card h3{font-size:21px}
+  .contactCard{padding:24px 20px}
+  .bedBody{padding:20px 17px}
+  .planner{padding:20px 15px}
+  .footerMain{padding:40px 5vw}
+  .curToggle button{padding:12px 22px}
+  .trayQty button{width:30px;height:30px}
+}
+
+/* --- short landscape screens, a phone turned on its side ------------ */
+@media(max-height:560px) and (orientation:landscape){
+  body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+  .hero{min-height:400px}
+  .heroCopy{padding:34px 6vw 96px}
+  .heroLogo{display:none}
+  .hero h1{font-size:clamp(28px,4.6vw,40px);margin:8px 0}
+  .heroText{font-size:15px}
+  .heroBtns{margin-top:16px}
+  .heroDots{bottom:calc(66px + env(safe-area-inset-bottom))}
+  .mobileCta{padding:7px 4vw calc(7px + env(safe-area-inset-bottom))}
+  .mobileCta .btn{padding:10px 10px}
+  .section{padding:44px 6vw}
+  .section h2{font-size:32px}
+  .pageHero{padding:44px 6vw 34px}
+  .bedMedia{--r:21/9}
+  .drawerPanel{width:min(70vw,320px)}
+  .drawerNav{padding:16px 22px 6px}
+  .drawerNav a{font-size:17px;padding:11px 30px 11px 2px}
+  .drawerFoot{padding:14px 22px 20px}
+  .drawerCall{margin:11px 0 2px;font-size:14px}
+}
+
+/* --- pointers that are really fingers ------------------------------ */
+@media(pointer:coarse){
+  .btn{padding:15px 22px}
+  .nav .btn{padding:13px 20px}
+  .addBtn{padding:12px 18px;font-size:12px}
+  .printBtn{padding:11px 18px}
+  .linkBtn{padding:6px 0}
+  .trayQty button{width:34px;height:34px}
+  .rfilter button,.menuCats button{padding:10px 16px}
+  .curToggle button{padding:14px 28px}
+  .dishFoot .addBtn{min-height:40px;display:inline-flex;align-items:center}
+}
+
+/* --- very large displays: hold the measure, do not stretch it ------ */
+@media(min-width:1500px){
+  .topbar,.nav{padding-left:max(5vw,calc((100% - 1580px)/2));padding-right:max(5vw,calc((100% - 1580px)/2))}
+  .section{padding:110px 7vw}
+  .section h2{font-size:58px}
+  .pageHero{padding:100px 7vw 76px}
+}
+@media(min-width:1400px) and (min-height:820px){
+  .hero{min-height:min(82vh,1000px)}
+  .heroCopy{padding:120px 8vw 150px}
+  .heroText{font-size:21px;max-width:640px}
+}
+@media(min-width:1900px){
+  .hero{min-height:min(74vh,1000px)}
+  .section{padding:130px 7vw}
+  .section h2{font-size:64px}
+}
+
+/* --- Windows high contrast, so nothing disappears ------------------- */
+@media(forced-colors:active){
+  .btn,.navCta,.studioLink,.curToggle button.on{border:1px solid ButtonText}
+  .card,.fact,.panel,.drawerPanel{border:1px solid CanvasText}
+  .photoOverlay{background:Canvas}
+  .photoOverlay *{color:CanvasText}
+}
+@media(prefers-reduced-motion:no-preference){.card,.fact,.menuRow,.rateCard{transition:transform .25s ease,box-shadow .25s ease}.btn:hover{transform:translateY(-2px);background:#d8aa2e}.card:hover,.fact:hover,.menuRow:hover,.rateCard:hover{transform:translateY(-5px);box-shadow:0 20px 50px #071A3320}}
+@media(prefers-reduced-motion:reduce){
+  /* Fades only, and no drift. visibility still has to switch instantly,
+     otherwise a hidden slide would linger for the length of the delay. */
+  .heroSlide{transition:opacity .01s linear,visibility 0s;transform:none}
+  .heroSlide.active{transform:none}
+  .heroPanel{transition:opacity .01s linear,visibility 0s}
+  .dishCard:hover{transform:none}
 }
 
 /* the menu is designed to be printed as well as browsed */

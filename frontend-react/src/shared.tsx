@@ -56,12 +56,12 @@ export function BedGlyph({size = 120}: {size?: number}) {
 }
 
 export function Brand({light = false}: {light?: boolean}) {
- return (
-  <a className={light ? 'brandL light' : 'brandL'} href="./index.html">
-   <img className="brandLogo" src={LOGO} alt="Hotel Paradise on the Nile logo"/>
-   <span className="brandWord"><span>PARADISE</span><small>ON THE NILE</small></span>
-  </a>
- );
+  return (
+   <a className={light ? 'brandL light' : 'brandL'} href="./index.html">
+    <img className="brandLogo" src={LOGO} alt="Hotel Paradise on the Nile logo"/>
+    <span className="brandWord"><span>HOTEL PARADISE</span><small>ON THE NILE</small></span>
+   </a>
+  );
 }
 
 export function TopBar() {
@@ -75,22 +75,52 @@ export function TopBar() {
 
 export const NAV = [['./index.html', 'Home'], ['./rooms.html', 'Rooms and beds'], ['./menu.html', 'Menu and dining'], ['./index.html#facilities', 'Facilities'], ['./index.html#contact', 'Contact']] as const;
 
+/** The studio that designed and built this website and the management system behind it. */
+export const STUDIO = {
+  name: 'Reagansoft Innovation Limited',
+  url: 'https://reagansoftinnovation.com',
+  label: 'reagansoftinnovation.com',
+  /** Uganda country code 256, then 730 314 979, written as 0730 314 979 locally. */
+  whatsapp: '256730314979',
+  whatsappLabel: 'WhatsApp 0730 314 979'
+};
+
+export const WhatsAppIcon = ({size = 15}: {size?: number}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+   <path d="M12.04 2C6.6 2 2.2 6.4 2.2 11.84c0 1.74.46 3.44 1.32 4.94L2 22l5.36-1.4a9.84 9.84 0 0 0 4.68 1.2h.01c5.43 0 9.84-4.4 9.84-9.84C21.89 6.4 17.48 2 12.04 2Zm5.76 14.02c-.24.68-1.4 1.32-1.94 1.36-.5.04-.98.24-3.3-.7-2.78-1.1-4.54-3.94-4.68-4.12-.14-.18-1.12-1.5-1.12-2.86 0-1.36.72-2.04.98-2.32.24-.28.54-.34.72-.34h.5c.16 0 .38-.06.6.46.22.54.74 1.86.8 2 .06.14.1.3.02.48-.08.18-.14.28-.26.44-.14.14-.28.32-.4.44-.14.14-.28.28-.12.56.16.28.72 1.18 1.54 1.92 1.06.94 1.96 1.24 2.24 1.38.28.14.44.12.6-.08.16-.18.68-.8.86-1.08.18-.28.36-.22.6-.14.24.1 1.56.74 1.82.88.26.14.44.2.5.32.06.12.06.7-.18 1.38Z"/>
+  </svg>
+);
+
 export function Footer() {
- return (
-  <footer>
-   <div className="flag"><i></i><i></i><i></i></div>
-   <div className="footerMain">
-    <div>
-     <Brand/>
-     <p>Premium hospitality in Jinja, on the banks of the Nile.</p>
+  return (
+   <footer>
+    <div className="flag"><i></i><i></i><i></i></div>
+    <div className="footerMain">
+     <div>
+      <Brand/>
+      <p>Premium hospitality in Jinja, on the banks of the Nile.</p>
+     </div>
+     <div><h4>HOTEL</h4><p>19 Kiira Road, Jinja</p><p>Rooms, dining, bar and events</p><p>P.O. Box 1139, Jinja, Uganda</p></div>
+     <div><h4>STAY</h4><p>Check in from 12 noon</p><p>Check out by 10 am</p><p>Breakfast included</p></div>
+     <div><h4>CONTACT</h4><p><a className="footLink" href="tel:+256759504928">+256 759 504 928</a></p><p><a className="footLink" href="mailto:hotel@hotelparadiseonthenile.info">hotel@hotelparadiseonthenile.info</a></p><p>Front desk open 24 hours</p></div>
+     <div className="footerStudio">
+      <h4>BUILT BY</h4>
+      <a className="studioLink" href={STUDIO.url} target="_blank" rel="noopener noreferrer">
+       <span className="studioName">{STUDIO.name}</span>
+       <span className="studioUrl">{STUDIO.label}</span>
+      </a>
+      <p>Design, build and support of this website and the hotel management system.</p>
+      <a className="studioWa" href={'https://wa.me/' + STUDIO.whatsapp} target="_blank" rel="noopener noreferrer">
+       <WhatsAppIcon/>{STUDIO.whatsappLabel}
+      </a>
+     </div>
     </div>
-    <div><h4>HOTEL</h4><p>19 Kiira Road, Jinja</p><p>Rooms, dining, bar and events</p><p>P.O. Box 1139, Jinja, Uganda</p></div>
-    <div><h4>STAY</h4><p>Check in from 12 noon</p><p>Check out by 10 am</p><p>Breakfast included</p></div>
-    <div><h4>CONTACT</h4><p>+256 759 504 928</p><p>hotel@hotelparadiseonthenile.info</p><p>Front desk open 24 hours</p></div>
-   </div>
-   <div className="footerCredit"><span>Hotel Paradise on the Nile Ltd, Jinja, Uganda</span><span>Designed by Reagansoft Innovation Limited</span></div>
-  </footer>
- );
+    <div className="footerCredit">
+     <span>Hotel Paradise on the Nile Ltd, Jinja, Uganda</span>
+     <span>Designed, built and supported by <a className="projLink" href={STUDIO.url} target="_blank" rel="noopener noreferrer">{STUDIO.name}</a></span>
+    </div>
+   </footer>
+  );
 }
 
 export function PageNav({onDark = false}: {onDark?: boolean}) {

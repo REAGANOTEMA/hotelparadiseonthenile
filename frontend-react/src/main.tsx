@@ -40,26 +40,145 @@ const heroSrcSet = (shot: {ext: string; w: number; variants: {w: number; ext: st
     .join(', ');
 };
 
-/** A portrait photograph needs a different anchor than a landscape one. */
-const heroPosition = (shot: {w: number; h: number}) => (shot.h > shot.w ? '50% 42%' : '50% 50%');
+/**
+ * Which part of the photograph to hold in frame.
+ *
+ * A landscape photograph held in a wide frame loses a little off the top and
+ * the bottom, and a portrait one loses a great deal, so the anchor moves with
+ * the shape of the file: wide pictures sit on their centre, squarer ones a
+ * little above it, and portrait ones on the upper third, which keeps a horizon
+ * or a skyline in shot instead of the empty foreground below it.
+ */
+const heroPosition = (shot: {w: number; h: number}) => {
+  if (!shot.w || !shot.h) return '50% 50%';
+  const r = shot.w / shot.h;
+  if (r >= 1.45) return '50% 50%';
+  if (r >= 1.0) return '50% 44%';
+  return '50% 34%';
+};
+
+type HeroCopy = {
+  eyebrow: string;
+  title: string;
+  text: string;
+  primary: {label: string; href: string};
+  secondary: {label: string; href: string};
+};
+
+/**
+ * One piece of writing per slide, so the carousel never says the same thing
+ * twice. The wording is about the hotel and what it offers rather than about
+ * what a particular photograph happens to show, which keeps every slide
+ * correct no matter how the pictures are later replaced.
+ */
+const HERO_COPY: HeroCopy[] = [
+  {
+    eyebrow: 'HOTEL PARADISE ON THE NILE',
+    title: 'Where luxury meets the Nile.',
+    text: 'A calm, refined stay in the heart of Jinja, right beside the river.',
+    primary: {label: 'Book your stay', href: './rooms.html'},
+    secondary: {label: 'Order food', href: './menu.html'}
+  },
+  {
+    eyebrow: 'ROOMS AND BEDS',
+    title: 'Eight ways to sleep well.',
+    text: 'From a quiet single to a suite made for the whole family. Every room is furnished to the same standard, and breakfast is included.',
+    primary: {label: 'See the rooms', href: './rooms.html'},
+    secondary: {label: 'Check availability', href: '#book'}
+  },
+  {
+    eyebrow: 'DINING AND BAR',
+    title: 'Good food, generous plates.',
+    text: 'An a la carte menu of Ugandan classics and international favourites, served through the day and into the evening.',
+    primary: {label: 'Open the menu', href: './menu.html'},
+    secondary: {label: 'Send an order', href: './menu.html#order'}
+  },
+  {
+    eyebrow: 'JINJA, UGANDA',
+    title: 'Five minutes from the centre of Jinja.',
+    text: 'On the banks of the River Nile, and about three hours by road from Entebbe Airport.',
+    primary: {label: 'Find us', href: '#contact'},
+    secondary: {label: 'See the facilities', href: '#facilities'}
+  },
+  {
+    eyebrow: 'THE HOTEL',
+    title: 'A health club, a pool and gardens.',
+    text: 'Sixty nine rooms over three floors, a health club with a swimming pool, and gardens and conference space for functions.',
+    primary: {label: 'Explore the hotel', href: '#facilities'},
+    secondary: {label: 'Book your stay', href: './rooms.html'}
+  },
+  {
+    eyebrow: 'RATES AND POLICIES',
+    title: 'Breakfast included, every night.',
+    text: 'Rates in Uganda Shillings and in US dollars, with breakfast and the local hotel tax already worked into the price.',
+    primary: {label: 'See the rates', href: '#rates'},
+    secondary: {label: 'Check availability', href: '#book'}
+  },
+  {
+    eyebrow: 'BOOK DIRECT',
+    title: 'Your room is waiting.',
+    text: 'Book online in a moment, or call the front desk. Someone answers the phone at every hour of the day.',
+    primary: {label: 'Book your stay', href: './rooms.html'},
+    secondary: {label: 'Call +256 759 504 928', href: 'tel:+256759504928'}
+  }
+];
 
 function Hero() {
+  const slides = heroShots.length ? heroShots : [{slug: '', ext: '', w: 0, h: 0, variants: []}];
+  const count = slides.length;
   const [i, setI] = React.useState(0);
-  const [paused, setPaused] = React.useState(false);
-  const shots = heroShots;
+  // Held for either reason, a pointer resting on it or a key inside it.
+  const [hover, setHover] = React.useState(false);
+  const [focus, setFocus] = React.useState(false);
+  // Someone who has asked for less motion gets the slides, but not the
+  // carousel moving under them.
+  const [still, setStill] = React.useState(false);
+  const [gone, setGone] = React.useState(false);
 
   React.useEffect(() => {
-    if (paused || shots.length < 2) return;
-    const t = window.setInterval(() => setI(v => (v + 1) % shots.length), 6000);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setStill(mq.matches);
+    sync();
+    if (mq.addEventListener) mq.addEventListener('change', sync);
+    else if (mq.addListener) mq.addListener(sync);
+    return () => { if (mq.removeEventListener) mq.removeEventListener('change', sync); else if (mq.removeListener) mq.removeListener(sync); };
+  }, []);
+
+  React.useEffect(() => {
+    if (hover || focus || still || gone || count < 2) return;
+    const t = window.setInterval(() => setI(v => (v + 1) % count), 6500);
     return () => window.clearInterval(t);
-  }, [paused, shots.length]);
+  }, [hover, focus, still, gone, count]);
+
+  // A carousel must not keep turning while its tab is in the background.
+  React.useEffect(() => {
+    const onVis = () => setGone(document.hidden);
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
+
+  const step = (d: number) => setI(v => (v + d + count) % count);
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  };
 
   return (
-   <section className="hero" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+   <section
+    className="hero"
+    aria-roledescription="carousel"
+    aria-label="Hotel Paradise on the Nile"
+    tabIndex={0}
+    onKeyDown={onKey}
+    onMouseEnter={() => setHover(true)}
+    onMouseLeave={() => setHover(false)}
+    onFocus={() => setFocus(true)}
+    onBlur={() => setFocus(false)}
+   >
     <div className="heroShots">
-     {shots.map((shot, n) => (
+     {slides.map((shot, n) => (
       <img
-       key={shot.slug}
+       key={shot.slug || 'blank'}
        className={'heroSlide' + (n === i ? ' active' : '')}
        src={'./images/' + shot.slug + '.' + shot.ext}
        srcSet={heroSrcSet(shot) || undefined}
@@ -76,20 +195,38 @@ function Hero() {
      ))}
     </div>
     <div className="heroShade"/>
-    <div className="heroOverlay">
-     <div className="heroLogo"><img src={LOGO} alt="Hotel Paradise on the Nile logo"/></div>
-     <p className="eyebrow">HOTEL PARADISE ON THE NILE</p>
-     <h1>Where luxury meets the Nile.</h1>
-     <p>A calm, refined stay in the heart of Jinja, right beside the river.</p>
-     <div className="heroBtns">
-      <a className="btn" href="./rooms.html">Book your stay</a>
-      <a className="btn ghost" href="./menu.html">Order food</a>
-      <a className="btn ghost" href="#facilities">Explore the hotel</a>
-     </div>
+
+    {/* Every slide's writing is stacked in the same grid cell, so the block
+        keeps one height and the carousel never jumps as the words change. */}
+    <div className="heroCopy">
+     {slides.map((_, n) => {
+      const c = HERO_COPY[n % HERO_COPY.length];
+      const on = n === i;
+      return (
+       <div className={'heroPanel' + (on ? ' on' : '')} key={n} aria-hidden={!on}>
+        <div className="heroLogo"><img src={LOGO} alt="Hotel Paradise on the Nile logo"/></div>
+        <p className="eyebrow">{c.eyebrow}</p>
+        <h1 className="heroTitle">{c.title}</h1>
+        <p className="heroText">{c.text}</p>
+        <div className="heroBtns">
+         <a className="btn" href={c.primary.href} tabIndex={on ? undefined : -1}>{c.primary.label}</a>
+         <a className="btn ghost2" href={c.secondary.href} tabIndex={on ? undefined : -1}>{c.secondary.label}</a>
+        </div>
+       </div>
+      );
+     })}
     </div>
-    {shots.length > 1 && <div className="heroDots">
-     {shots.map((shot, n) => (
-      <button key={shot.slug} className={'dot' + (n === i ? ' on' : '')} onClick={() => setI(n)} aria-label={'Show slide ' + (n + 1)}/>
+
+    {count > 1 && <div className="heroDots" role="tablist" aria-label="Choose a slide">
+     {slides.map((shot, n) => (
+      <button
+       key={shot.slug || n}
+       className={'dot' + (n === i ? ' on' : '')}
+       onClick={() => setI(n)}
+       role="tab"
+       aria-selected={n === i}
+       aria-label={'Slide ' + (n + 1) + ' of ' + count + ': ' + HERO_COPY[n % HERO_COPY.length].title}
+      />
      ))}
     </div>}
    </section>
@@ -125,7 +262,7 @@ function Rates() {
    <div className="center">
     <p className="eyebrow">ROOM RATES AND POLICIES</p>
     <h2>Rates and policies</h2>
-    <p className="intro">Current tariffs for a night at Paradise on the Nile. Choose your currency, every rate is quoted in Uganda Shillings and in US dollars, includes breakfast and the local hotel tax, and is subject to change without notice.</p>
+     <p className="intro">Current tariffs for a night at Hotel Paradise on the Nile. Choose your currency, every rate is quoted in Uganda Shillings and in US dollars, includes breakfast and the local hotel tax, and is subject to change without notice.</p>
     <div className="curToggle" role="group" aria-label="Choose the currency you want to see">
      <button type="button" className={cur === 'UGX' ? 'on' : ''} aria-pressed={cur === 'UGX'} onClick={() => setCur('UGX')}>UGX</button>
      <button type="button" className={cur === 'USD' ? 'on' : ''} aria-pressed={cur === 'USD'} onClick={() => setCur('USD')}>USD</button>
@@ -232,7 +369,7 @@ function Home() {
    <div className="center">
     <p className="eyebrow">THE HOTEL</p>
     <h2>Everything you need, in one place</h2>
-    <p className="intro">Paradise on the Nile sits right on the banks of the River Nile, about a three hour drive from Entebbe Airport and only five minutes from the centre of Jinja town.</p>
+     <p className="intro">Hotel Paradise on the Nile sits right on the banks of the River Nile, about a three hour drive from Entebbe Airport and only five minutes from the centre of Jinja town.</p>
    </div>
    <div className="factsGrid">
     {facts.map(f => <div className="fact" key={f.t}><h4>{f.t.toUpperCase()}</h4><p>{f.d}</p></div>)}
