@@ -1,7 +1,14 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './styles.css';
-import {rooms as baseRooms, TopBar, PageNav, Footer, BedGlyph, palettes, fmt, API} from './shared';
+import {rooms as baseRooms, TopBar, PageNav, Footer, BedGlyph, roomImage, fmt, API} from './shared';
+import {SmartImage} from './SmartImage';
+
+/**
+ * Add ?photos=1 to see the file name each room is waiting for. Guests never
+ * see it; it is here so the front desk can tell which rooms still need a shot.
+ */
+const SHOW_FILE_HINTS = new URLSearchParams(location.search).get('photos') === '1';
 
 function useQuery() {
  const p = new URLSearchParams(window.location.search);
@@ -61,54 +68,80 @@ function RoomsPage() {
   setBusy(false);
  };
 
- return <div>
-  <TopBar/>
-  <PageNav/>
+  return <div>
+   <TopBar/>
+   <PageNav/>
 
-  <section className="pageHero">
-   <p className="eyebrow">CHOOSE YOUR ROOM</p>
-   <h1>Rooms and beds, your way.</h1>
-    <p>Open any room to see the bed clearly, then choose it. You can drop it and pick another one any time before you book. Rates are per night, shown in Uganda Shillings and US dollars, and include breakfast and the local hotel tax.</p>
+   <section className="pageHero">
+    <p className="eyebrow">CHOOSE YOUR ROOM</p>
+    <h1>Rooms and beds, your way.</h1>
+    <p>Every room type is photographed, so you can see exactly what you are booking. Choose the one you like, and change or drop it as often as you like before you book. Rates are per night, shown in Uganda Shillings and US dollars, and include breakfast and the local hotel tax.</p>
+   </section>
 
-  </section>
-
-  <section className="bedsWrap section">
-   <div className="bedList">
-    {rooms.map((r, i) => {
-     const active = chosen === r.type;
-     return (
-      <article className={'bedCard' + (active ? ' chosen' : '')} id={'bed-' + r.id} key={r.id}>
-       <div className="bedMedia" style={{background: palettes(i)}}>{active && <span className="selBadge">Your choice</span>}<BedGlyph size={104}/></div>
-       <div className="bedBody">
-        <p className="pill">{r.pillow}</p>
-        <h3>{r.type}</h3>
-        <p className="bedsLine">{r.beds} &middot; {r.guests}</p>
-        <p className="bedText">{r.text}</p>
-        <div className="bedFoot">
-         <strong>{r.rate} <span>per night</span><span className="usdLine">US$ {r.usd} per night</span></strong>
-         {active
-          ? <button className="btn ghost2" onClick={() => setChosen('')}>Change or drop</button>
-          : <button className="btn" onClick={() => pick(r.type)}>Choose this bed</button>}
+   <section className="bedsWrap section">
+    <div className="bedList">
+     {rooms.map(r => {
+      const active = chosen === r.type;
+      return (
+       <article className={'bedCard' + (active ? ' chosen' : '')} id={'bed-' + r.id} key={r.id}>
+        <SmartImage
+         group="rooms"
+         name={roomImage(r.type)}
+         alt={r.type}
+         ratio="3 / 4"
+         widths={[320, 480, 640, 960]}
+         sizes="(max-width:1050px) 100vw, 300px"
+         position="50% 45%"
+         zoom
+         className="bedMedia"
+         placeholder={<>
+          <BedGlyph size={92}/>
+          <span className="bedMediaNote">{r.beds}</span>
+          {SHOW_FILE_HINTS && <code className="shotFile">images/rooms/{roomImage(r.type)}.jpg</code>}
+         </>}
+        />
+        <div className="bedBody">
+         <p className="pill">{r.pillow}</p>
+         <h3>{r.type}</h3>
+         <p className="bedsLine">{r.beds} &middot; {r.guests}</p>
+         <p className="bedText">{r.text}</p>
+         <div className="bedFoot">
+          <strong>{r.rate} <span>per night</span><span className="usdLine">US$ {r.usd} per night</span></strong>
+          {active
+           ? <button className="btn ghost2" onClick={() => setChosen('')}>Change or drop</button>
+           : <button className="btn" onClick={() => pick(r.type)}>Choose this bed</button>}
+         </div>
         </div>
-       </div>
-      </article>
-     );
-    })}
-   </div>
+        {active && <span className="selBadge">Your choice</span>}
+       </article>
+      );
+     })}
+    </div>
 
-   <div className="planner" id="planner">
-    {!sel ? (
-     <div className="plannerEmpty">
-      <BedGlyph size={70}/>
-      <h3>Your room</h3>
-      <p>Nothing chosen yet. Pick a bed from the list and it will appear here, clearly, before you book.</p>
-     </div>
-    ) : (
-     <div className="plannerActive">
-      <div className="spot" style={{background: palettes(rooms.indexOf(sel))}}><BedGlyph size={92}/></div>
-      <h3>{sel.type}</h3>
-      <p className="bedsLine">{sel.beds} &middot; {sel.guests}</p>
-       <div className="spotTotal"><span>{sel.rate} per night</span><b>{nights ? fmt(total) : 'Pick your dates'}</b><small>{nights ? 'For ' + nights + ' night' + (nights > 1 ? 's' : '') + ', breakfast and hotel tax included. Also US$ ' + sel.usd + ' per night' : 'Choose check in and check out to see your total, quoted in Uganda Shillings'}</small></div>
+    <div className="planner" id="planner">
+     {!sel ? (
+      <div className="plannerEmpty">
+       <BedGlyph size={70}/>
+       <h3>Your room</h3>
+       <p>Nothing chosen yet. Pick a room from the list and its photograph appears here, so you can see exactly what you are booking.</p>
+      </div>
+     ) : (
+      <div className="plannerActive">
+       <SmartImage
+        group="rooms"
+        name={roomImage(sel.type)}
+        alt={sel.type}
+        ratio="16 / 10"
+        widths={[320, 480, 640]}
+        sizes="(max-width:1050px) 100vw, 360px"
+        position="50% 45%"
+        className="spot"
+        placeholder={<BedGlyph size={86}/>}
+       />
+       <h3>{sel.type}</h3>
+       <p className="bedsLine">{sel.beds} &middot; {sel.guests}</p>
+        <div className="spotTotal"><span>{sel.rate} per night</span><b>{nights ? fmt(total) : 'Pick your dates'}</b><small>{nights ? 'For ' + nights + ' night' + (nights > 1 ? 's' : '') + ', breakfast and hotel tax included. Also US$ ' + sel.usd + ' per night' : 'Choose check in and check out to see your total, quoted in Uganda Shillings'}</small></div>
+
 
 
       <div className="planGrid">

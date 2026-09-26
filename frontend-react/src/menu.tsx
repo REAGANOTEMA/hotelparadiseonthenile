@@ -2,10 +2,9 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './styles.css';
 import {TopBar, PageNav, Footer, fmt, API} from './shared';
+import {SmartImage} from './SmartImage';
 import {
   MENU_REVISION,
-  DISH_IMAGE_DIR,
-  SECTION_IMAGE_DIR,
   dishImage,
   menuSections,
   sectionImage,
@@ -19,6 +18,13 @@ import {
 type Line = {dish: MenuItem; qty: number};
 
 const CALL = '+256 759 504 928';
+
+/**
+ * Add ?photos=1 to any page to see the file name each slot is waiting for.
+ * Guests never see it; it is here so the kitchen can tell at a glance which
+ * photographs are still outstanding.
+ */
+const SHOW_FILE_HINTS = new URLSearchParams(location.search).get('photos') === '1';
 
 /** Reads the live kitchen menu and folds it into the same shape as the fallback. */
 const toSections = (cats: Array<{name: string; eyebrow?: string; blurb?: string; image?: string; items: any[]}>): MenuSection[] =>
@@ -49,7 +55,7 @@ const toSections = (cats: Array<{name: string; eyebrow?: string; blurb?: string;
       };
     });
 
-/** Reserved plate drawn when a dish has no photograph yet. */
+/** Reserved plate drawn while a dish is still waiting for its photograph. */
 function PlateGlyph() {
   return (
     <svg className="plateGlyph" viewBox="0 0 64 64" fill="none" aria-hidden="true">
@@ -62,32 +68,58 @@ function PlateGlyph() {
 }
 
 /**
- * The photo slot for one dish. Drop a file named after the slug into
- * /images/dishes/ and it fills itself. Missing photos keep the reserved
- * plate, so a card is never broken or empty.
+ * The photograph of one dish.
+ *
+ * Drop a file named after the slug into /images/dishes/ and it fills itself,
+ * at whatever size the screen needs. Until then the card shows a warm, printed
+ * plate rather than an empty box, so the menu still reads as a finished menu.
  */
 function DishShot({dish}: {dish: MenuItem}) {
-  const [broken, setBroken] = React.useState(false);
   const file = dishImage(dish);
-  if (broken) {
-    return (
-      <div className="shot shotBlank">
-        <PlateGlyph/>
-        <span className="shotNote">Photo slot</span>
-        <code className="shotFile">images/dishes/{file}</code>
-      </div>
-    );
-  }
-  return <div className="shot"><img src={DISH_IMAGE_DIR + file} alt={dish.name} loading="lazy" onError={() => setBroken(true)}/></div>;
+  return (
+    <SmartImage
+      group="dishes"
+      name={file}
+      alt={dish.name}
+      ratio="4 / 3"
+      widths={[320, 480, 640, 960]}
+      sizes="(max-width:640px) 132px, (max-width:1050px) 240px, (max-width:1400px) 300px, 340px"
+      position="50% 52%"
+      zoom
+      className="shot"
+      placeholder={
+        <div className="shotEmpty">
+          <PlateGlyph/>
+          <span className="shotNote">{dish.group}</span>
+          {SHOW_FILE_HINTS && <code className="shotFile">images/dishes/{file}</code>}
+        </div>
+      }
+    />
+  );
 }
 
-function SectionBanner({section}: {section: MenuSection}) {
-  const [broken, setBroken] = React.useState(false);
+/**
+ * The wide photograph that opens a section, with the section name laid over it.
+ * Falls back to a deep navy panel with a gold rule, which reads as designed
+ * rather than broken while the photograph is still outstanding.
+ */
+function SectionBanner({section, children}: {section: MenuSection; children: React.ReactNode}) {
   const file = sectionImage(section);
-  if (broken) {
-    return <div className="secBanner secBannerBlank"><span className="secBannerTag">Section banner slot</span><code className="shotFile">images/dishes/{file}</code></div>;
-  }
-  return <div className="secBanner"><img src={SECTION_IMAGE_DIR + file} alt="" loading="lazy" onError={() => setBroken(true)}/></div>;
+  return (
+    <SmartImage
+      group="dishes"
+      name={file}
+      alt=""
+      ratio="21 / 8"
+      widths={[640, 1024, 1440, 1920]}
+      sizes="(max-width:1400px) 100vw, 1260px"
+      position="72% 50%"
+      className="secBanner"
+      placeholder={<span className="secBannerGlyph" aria-hidden="true">{section.name.slice(0, 1).toUpperCase()}</span>}
+    >
+      {children}
+    </SmartImage>
+  );
 }
 
 function MenuPage() {
@@ -198,10 +230,11 @@ function MenuPage() {
 
       {sections.map(section => (
         <section className="secBlock" id={'sec-' + section.key} key={section.key}>
-          <SectionBanner section={section}/>
           <header className="secHead">
-            {section.eyebrow && <p className="secEyebrow">{section.eyebrow}</p>}
-            <h2>{section.name}</h2>
+            <SectionBanner section={section}>
+              {section.eyebrow && <p className="secEyebrow">{section.eyebrow}</p>}
+              <h2>{section.name}</h2>
+            </SectionBanner>
             {section.blurb && <p className="secBlurb">{section.blurb}</p>}
           </header>
 

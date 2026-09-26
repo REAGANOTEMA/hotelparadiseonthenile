@@ -1,7 +1,8 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './styles.css';
-import {rooms, TopBar, PageNav, Footer, BedGlyph, palettes, fmt, API, LOGO} from './shared';
+import {rooms, TopBar, PageNav, Footer, BedGlyph, roomImage, fmt, API, LOGO} from './shared';
+import {heroShots, SmartImage} from './SmartImage';
 
 const dining = [
  {name: 'Breakfast', price: 'UGX 25,000', note: 'For non residents, or children above six years sharing a room with their parents'},
@@ -22,42 +23,77 @@ const facts = [
 const MAP_EMBED = 'https://www.google.com/maps?q=' + encodeURIComponent('Hotel Paradise on the Nile, 19 Kiira Rd, Jinja, Uganda') + '&output=embed';
 const MAP_LINK = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Hotel Paradise on the Nile, 19 Kiira Rd, Jinja, Uganda');
 
-const HERO_IMAGES = Array.from({length: 7}, (_, n) => './images/hero' + (n + 1) + '.webp');
+const HERO_WIDTHS = [640, 1024, 1440, 1920, 2560];
+
+/** Only widths the file really has, so a 680px photo is never asked to fill 2560. */
+const heroSrcSet = (shot: {ext: string; w: number; variants: {w: number; ext: string}[]}) => {
+  const picks: {file: string; w: number}[] = HERO_WIDTHS.map(w => {
+    const v = shot.variants.find(x => x.w >= w);
+    return v ? {file: shot.slug + '-' + v.w + '.' + v.ext, w: v.w} : null;
+  }).filter(Boolean) as {file: string; w: number}[];
+  if (shot.w) picks.push({file: shot.slug + '.' + shot.ext, w: shot.w});
+  const seen = new Set<number>();
+  return picks
+    .filter(p => (seen.has(p.w) ? false : (seen.add(p.w), true)))
+    .sort((a, b) => a.w - b.w)
+    .map(p => './images/' + p.file + ' ' + p.w + 'w')
+    .join(', ');
+};
+
+/** A portrait photograph needs a different anchor than a landscape one. */
+const heroPosition = (shot: {w: number; h: number}) => (shot.h > shot.w ? '50% 42%' : '50% 50%');
 
 function Hero() {
- const [i, setI] = React.useState(0);
- const [paused, setPaused] = React.useState(false);
- React.useEffect(() => {
-  if (paused) return;
-  const t = window.setInterval(() => setI(v => (v + 1) % HERO_IMAGES.length), 6000);
-  return () => window.clearInterval(t);
- }, [paused]);
- return (
-  <section className="hero" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-   <div className="heroShots">
-    {HERO_IMAGES.map((src, n) => (
-     <img key={src} className={'heroSlide' + (n === i ? ' active' : '')} src={src} alt="" draggable={false}/>
-    ))}
-   </div>
-   <div className="heroShade"/>
-   <div className="heroOverlay">
-    <div className="heroLogo"><img src={LOGO} alt="Hotel Paradise on the Nile logo"/></div>
-    <p className="eyebrow">HOTEL PARADISE ON THE NILE</p>
-    <h1>Where luxury meets the Nile.</h1>
-    <p>A calm, refined stay in the heart of Jinja, right beside the river.</p>
-    <div className="heroBtns">
-     <a className="btn" href="./rooms.html">Book your stay</a>
-     <a className="btn ghost" href="./menu.html">Order food</a>
-     <a className="btn ghost" href="#facilities">Explore the hotel</a>
+  const [i, setI] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const shots = heroShots;
+
+  React.useEffect(() => {
+    if (paused || shots.length < 2) return;
+    const t = window.setInterval(() => setI(v => (v + 1) % shots.length), 6000);
+    return () => window.clearInterval(t);
+  }, [paused, shots.length]);
+
+  return (
+   <section className="hero" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div className="heroShots">
+     {shots.map((shot, n) => (
+      <img
+       key={shot.slug}
+       className={'heroSlide' + (n === i ? ' active' : '')}
+       src={'./images/' + shot.slug + '.' + shot.ext}
+       srcSet={heroSrcSet(shot) || undefined}
+       sizes="100vw"
+       alt=""
+       width={shot.w || undefined}
+       height={shot.h || undefined}
+       style={{objectPosition: heroPosition(shot)}}
+       loading={n === 0 ? 'eager' : 'lazy'}
+       fetchPriority={n === 0 ? 'high' : 'auto'}
+       decoding="async"
+       draggable={false}
+      />
+     ))}
     </div>
-   </div>
-   <div className="heroDots">
-    {HERO_IMAGES.map((_, n) => (
-     <button key={n} className={'dot' + (n === i ? ' on' : '')} onClick={() => setI(n)} aria-label={'Show slide ' + (n + 1)}/>
-    ))}
-   </div>
-  </section>
- );
+    <div className="heroShade"/>
+    <div className="heroOverlay">
+     <div className="heroLogo"><img src={LOGO} alt="Hotel Paradise on the Nile logo"/></div>
+     <p className="eyebrow">HOTEL PARADISE ON THE NILE</p>
+     <h1>Where luxury meets the Nile.</h1>
+     <p>A calm, refined stay in the heart of Jinja, right beside the river.</p>
+     <div className="heroBtns">
+      <a className="btn" href="./rooms.html">Book your stay</a>
+      <a className="btn ghost" href="./menu.html">Order food</a>
+      <a className="btn ghost" href="#facilities">Explore the hotel</a>
+     </div>
+    </div>
+    {shots.length > 1 && <div className="heroDots">
+     {shots.map((shot, n) => (
+      <button key={shot.slug} className={'dot' + (n === i ? ' on' : '')} onClick={() => setI(n)} aria-label={'Show slide ' + (n + 1)}/>
+     ))}
+    </div>}
+   </section>
+  );
 }
 
 function AvailabilityStrip() {
@@ -144,9 +180,20 @@ function Home() {
      <p className="intro">Eight welcoming room types with honest rates in Uganda Shillings and US dollars. Open any room to see the bed clearly, choose it, or pick another one before you book. Every rate includes breakfast and the local hotel tax.</p>
     </div>
     <div className="grid">
-     {rooms.filter(r => r.featured || r.id === 6).map((r, i) => (
+     {rooms.filter(r => r.featured || r.id === 6).map(r => (
       <article className="card" key={r.id}>
-       <div className="photo bedPhoto" style={{background: palettes(r.id)}}><BedGlyph size={96}/></div>
+       <SmartImage
+        group="rooms"
+        name={roomImage(r.type)}
+        alt={r.type}
+        ratio="16 / 10"
+        widths={[320, 480, 640, 960]}
+        sizes="(max-width:900px) 100vw, (max-width:1400px) 400px, 460px"
+        position="50% 45%"
+        zoom
+        className="photo"
+        placeholder={<BedGlyph size={84}/>}
+       />
        <div className="cardBody">
         <p className="pill">{r.pillow}</p>
         <h3>{r.type}</h3>

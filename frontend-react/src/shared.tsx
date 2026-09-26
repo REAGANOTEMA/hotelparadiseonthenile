@@ -11,11 +11,11 @@ export type Room = {
   rate: string;
   usd: string;
   price: number;
- guests: string;
- beds: string;
- pillow: string;
- text: string;
- featured?: boolean;
+  guests: string;
+  beds: string;
+  pillow: string;
+  text: string;
+  featured?: boolean;
 };
 
 export const rooms: Room[] = [
@@ -29,8 +29,15 @@ export const rooms: Room[] = [
   {id: 8, type: 'Standard Single', rate: 'On request', usd: '55', price: 0, guests: '1 guest', beds: 'One single bed', pillow: 'Great value', text: 'A simple, well equipped single room with a comfortable single bed. Contact the hotel for today rate.'}
 ];
 
+/**
+ * The photograph a room is illustrated by, in /images/rooms/.
+ * Naming follows the room type: Deluxe Double looks for deluxe-double.jpg.
+ */
+export const roomImage = (type: string): string =>
+  type.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
 export const palettes = (i: number): string =>
- ['linear-gradient(150deg,#16293f,#0B5D78)', 'linear-gradient(150deg,#c9a22766,#0d2338)', 'linear-gradient(150deg,#071A33,#3d7d96)', 'linear-gradient(150deg,#16324a,#0f4c66)', 'linear-gradient(150deg,#c9a22755,#1E3A5F)', 'linear-gradient(150deg,#0d2338,#0B5D78)', 'linear-gradient(150deg,#0f4c66,#16293f)'][i % 7];
+  ['linear-gradient(150deg,#16293f,#0B5D78)', 'linear-gradient(150deg,#c9a22766,#0d2338)', 'linear-gradient(150deg,#071A33,#3d7d96)', 'linear-gradient(150deg,#16324a,#0f4c66)', 'linear-gradient(150deg,#c9a22755,#1E3A5F)', 'linear-gradient(150deg,#0d2338,#0B5D78)', 'linear-gradient(150deg,#0f4c66,#16293f)'][i % 7];
 
 export function BedGlyph({size = 120}: {size?: number}) {
  return (
